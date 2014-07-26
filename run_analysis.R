@@ -1,4 +1,5 @@
 ###  Prepare  ####
+library(reshape)
 wd <- "C:\\Users\\ddunn\\Dropbox\\DD Cloud\\Courses\\Coursera - Getting and Cleaning Data\\UCI HAR Dataset"
 
 
@@ -42,30 +43,29 @@ full2 <- full1[,c(meansdlist,562:563)]
 
 
 ###  Label activities  ####
-full1$Activity[full1$Activity=="1"] <- "Walking"
-full1$Activity[full1$Activity=="2"] <- "Walking_Upstairs"
-full1$Activity[full1$Activity=="3"] <- "Walking_Downstairs"
-full1$Activity[full1$Activity=="4"] <- "Sitting"
-full1$Activity[full1$Activity=="5"] <- "Standing"
-full1$Activity[full1$Activity=="6"] <- "Lying"
+full2$Activity[full2$Activity=="1"] <- "Walking"
+full2$Activity[full2$Activity=="2"] <- "Walking_Upstairs"
+full2$Activity[full2$Activity=="3"] <- "Walking_Downstairs"
+full2$Activity[full2$Activity=="4"] <- "Sitting"
+full2$Activity[full2$Activity=="5"] <- "Standing"
+full2$Activity[full2$Activity=="6"] <- "Lying"
 
 
+###  Include subjects  ####
+setwd(paste0(wd,"\\test"))
+subtest0 <- read.table(file="subject_test.txt",header=FALSE,stringsAsFactors=FALSE)
+setwd(paste0(wd,"\\train"))
+subtrain0 <- read.table(file="subject_train.txt",header=FALSE,stringsAsFactors=FALSE)
+subs0 <- data.frame(rbind(subtest0,subtrain0))
+colnames(subs0) <- "Subject"
+full3 <- cbind(full2,subs0)
 
 
+###  Summarize to average for each Activity/Subject  ####
+melt0 <- melt(full3,id.vars=c("Activity","Subject","Set"))
+cast0 <- cast(melt0,Activity+Subject+Set~variable,mean)
 
 
-
-#run_analysis.R
-#Creates a second, independent tidy data set with the average of each variable 
-#for each activity and each subject. 
-
-#CodeBook.md
-#Add a code book that describes the variables, the data, and any transformations 
-#or work that you performed to clean up the data called CodeBook.md.
-
-#README.md
-#You should also include a README.md in the repo with your scripts.
-#This repo explains how all of the scripts work and how they are connected.  
-
-
-
+####  Write final tidy data set  ####
+setwd(wd)
+write.table(cast0,"tidydata.txt",sep="\t",row.names=FALSE)
