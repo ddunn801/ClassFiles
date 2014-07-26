@@ -69,3 +69,4 @@ cast0 <- cast(melt0,Activity+Subject+Set~variable,mean)
 ####  Write final tidy data set  ####
 setwd(wd)
 write.table(cast0,"tidydata.txt",sep="\t",row.names=FALSE)
+
